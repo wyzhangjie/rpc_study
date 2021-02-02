@@ -15,17 +15,23 @@ import java.net.InetAddress;
 
 @Slf4j
 public class RpcServier {
-    private String serverAddress;
     EventLoopGroup bossGroup;
     EventLoopGroup workerGroup;
-    static final int PORT = Integer.parseInt(System.getProperty("port", "8007"));
     ServerBootstrap serverBootstrap;
+    String serverAddress;
+    int serverPort;
 
-    public void RpcServier() throws Exception{
-        serverAddress = InetAddress.getLocalHost().getHostAddress();
-        workerGroup = new NioEventLoopGroup();
-        bossGroup = new NioEventLoopGroup();
+    public RpcServier(String serverAddress,int serverPort) {
+        this.serverAddress = serverAddress;
+        this.serverPort = serverPort;
+    }
+
+    public void startRpcServer() {
+
         try {
+            serverAddress = InetAddress.getLocalHost().getHostAddress();
+            workerGroup = new NioEventLoopGroup();
+            bossGroup = new NioEventLoopGroup();
             serverBootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .option(ChannelOption.SO_BACKLOG, 100)
@@ -40,9 +46,11 @@ public class RpcServier {
                             //  p.addLast(serverHandler);
                         }
                     }).childOption(ChannelOption.SO_KEEPALIVE,true);
-            ChannelFuture channelFuture = serverBootstrap.bind(serverAddress,PORT).sync();
-            log.info("server addr {} started on port {}", this.serverAddress, this.PORT);
+            ChannelFuture channelFuture = serverBootstrap.bind(serverAddress,serverPort).sync();
+            log.info("server addr {} started on port {}", serverAddress, this.serverPort);
             channelFuture.channel().closeFuture().sync();
+        }catch (Exception e){
+
         }finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
