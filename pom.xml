@@ -11,7 +11,6 @@
         <module>agrithm</module>
         <module>cloudfront</module>
         <module>cloudback</module>
-        <module>cloudfront</module>
     </modules>
 
     <properties>

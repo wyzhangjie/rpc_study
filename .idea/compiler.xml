@@ -7,8 +7,10 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="cloudback (1)" />
         <module name="agrithm" />
         <module name="cloudback" />
+        <module name="agrithm (1)" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
