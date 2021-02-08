@@ -22,13 +22,17 @@
         <joda.time.version>2.9.2</joda.time.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spring-rocketmq-starter.version>2.0.3</spring-rocketmq-starter.version>
+        <com.rpc.spring-rocketmq-starter.version>2.0.3</com.rpc.spring-rocketmq-starter.version>
         <rocketmq.version>4.5.1</rocketmq.version>
         <disruptor.version>3.4.2</disruptor.version>
         <java.version>1.8</java.version>
         <dubbo.version>2.7.3</dubbo.version>
     </properties>
 
-
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.1.12.RELEASE</version>
+    </parent>
 
 </project>
