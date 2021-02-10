@@ -29,7 +29,7 @@ public class RpcProvider implements InitializingBean, BeanPostProcessor {
         new Thread(()->{
             try{ this.serverAddress = InetAddress.getLocalHost().getHostAddress();
                 RpcServier rpcServier = new RpcServier(serverAddress,serverPort);
-                rpcServier.startRpcServer();
+                rpcServier.startRpcServer(rpcServiceMap);
             }catch (Exception e){
                 log.error("start rpc server error",e);
             }

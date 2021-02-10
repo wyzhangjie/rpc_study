@@ -35,7 +35,6 @@ public class RpcConsumer {
         });
     }
     public void sendRequest(SmallRpcProtocol<MiniRpcRequest> protocol, RegistryService registryService) throws Exception {
-        SmallHeader smallHeader = protocol.getSmallHeader();
         MiniRpcRequest miniRpcRequest = protocol.getData();
         Object[] params = miniRpcRequest.getParams();
         String serviceKey = RpcServiceHelper.buildServiceKey(miniRpcRequest.getClassName(),miniRpcRequest.getServiceVersion());

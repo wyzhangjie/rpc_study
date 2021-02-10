@@ -9,4 +9,5 @@ public class Common {
     public static final short MAGIC = 0x10;
 
     public static final byte VERSION = 0x1;
+    public static final String INIT_METHOD_NAME = "init";
 }

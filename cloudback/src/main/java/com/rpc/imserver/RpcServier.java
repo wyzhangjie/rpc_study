@@ -12,6 +12,7 @@ import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetAddress;
+import java.util.Map;
 
 @Slf4j
 public class RpcServier {
@@ -26,9 +27,10 @@ public class RpcServier {
         this.serverPort = serverPort;
     }
 
-    public void startRpcServer() {
+    public void startRpcServer(Map<String, Object> rpcServiceMap)throws Exception {
 
         try {
+            serverBootstrap = new ServerBootstrap();
             serverAddress = InetAddress.getLocalHost().getHostAddress();
             workerGroup = new NioEventLoopGroup();
             bossGroup = new NioEventLoopGroup();
@@ -43,13 +45,15 @@ public class RpcServier {
                             //编解码
                             p.addLast(new SmallDecoder());
                             p.addLast(new SmallEncoder());
-                            //  p.addLast(serverHandler);
+                            p.addLast(new RpcRequestHandler(rpcServiceMap));
+
                         }
                     }).childOption(ChannelOption.SO_KEEPALIVE,true);
             ChannelFuture channelFuture = serverBootstrap.bind(serverAddress,serverPort).sync();
             log.info("server addr {} started on port {}", serverAddress, this.serverPort);
             channelFuture.channel().closeFuture().sync();
         }catch (Exception e){
+           throw e;
 
         }finally {
             workerGroup.shutdownGracefully();

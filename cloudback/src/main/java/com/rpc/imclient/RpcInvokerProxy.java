@@ -10,6 +10,7 @@ import io.netty.util.concurrent.DefaultPromise;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.concurrent.TimeUnit;
 
 public class RpcInvokerProxy implements InvocationHandler {
 
@@ -36,7 +37,7 @@ public class RpcInvokerProxy implements InvocationHandler {
         smallHeader.setSerialAlg((byte)SerializationTypeEnum.JSON.getType());
         protocol.setSmallHeader(smallHeader);
         MiniRpcRequest request = new MiniRpcRequest();
-        request.setClassName(proxy.getClass().getName());
+        request.setClassName(method.getDeclaringClass().getName());
         request.setMethodName(method.getName());
         request.setParams(args);
         request.setParameterTypes(method.getParameterTypes());
@@ -48,6 +49,6 @@ public class RpcInvokerProxy implements InvocationHandler {
         MiniRcpFuture<MiniRpcResponse> future = new MiniRcpFuture<>(new DefaultPromise<>(new DefaultEventLoop()), timeout);
         RpcClientRequestHolder.holder.put(requestId, future);
         rpcConsumer.sendRequest(protocol, this.registryService);
-        return protocol;
+        return future.getPromise().get(future.getTimeout(), TimeUnit.MILLISECONDS).getData();
     }
 }
