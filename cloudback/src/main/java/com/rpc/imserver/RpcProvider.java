@@ -1,6 +1,16 @@
 package com.rpc.imserver;
 
+import com.rpc.codc.SmallDecoder;
+import com.rpc.codc.SmallEncoder;
 import com.rpc.common.RpcServiceHelper;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
@@ -27,14 +37,47 @@ public class RpcProvider implements InitializingBean, BeanPostProcessor {
     @Override
     public void afterPropertiesSet() throws Exception {
         new Thread(()->{
-            try{ this.serverAddress = InetAddress.getLocalHost().getHostAddress();
-                RpcServier rpcServier = new RpcServier(serverAddress,serverPort);
-                rpcServier.startRpcServer(rpcServiceMap);
+            try{
+              /*  this.serverAddress = InetAddress.getLocalHost().getHostAddress();
+                RpcServier rpcServier = new RpcServier(serverAddress,serverPort);*/
+                startRpcServer(rpcServiceMap);
             }catch (Exception e){
                 log.error("start rpc server error",e);
             }
 
         }).start();
+
+    }
+
+    private void startRpcServer(Map<String, Object> rpcServiceMap) throws Exception{
+
+        this.serverAddress = InetAddress.getLocalHost().getHostAddress();
+
+        EventLoopGroup boss = new NioEventLoopGroup();
+        EventLoopGroup worker = new NioEventLoopGroup();
+        try {
+            ServerBootstrap bootstrap = new ServerBootstrap();
+            bootstrap.group(boss, worker)
+                    .channel(NioServerSocketChannel.class)
+                    .childHandler(new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        protected void initChannel(SocketChannel socketChannel) throws Exception {
+                            socketChannel.pipeline()
+                                    .addLast(new SmallEncoder())
+                                    .addLast(new SmallDecoder())
+                                    .addLast(new RpcRequestHandler(rpcServiceMap));
+                        }
+                    })
+                    .childOption(ChannelOption.SO_KEEPALIVE, true)
+                    .childOption(ChannelOption.SO_REUSEADDR,true);
+
+            ChannelFuture channelFuture = bootstrap.bind(this.serverAddress, this.serverPort).sync();
+            log.info("server addr {} started on port {}", this.serverAddress, this.serverPort);
+            channelFuture.channel().closeFuture().sync();
+        } finally {
+            boss.shutdownGracefully();
+            worker.shutdownGracefully();
+        }
 
     }
 

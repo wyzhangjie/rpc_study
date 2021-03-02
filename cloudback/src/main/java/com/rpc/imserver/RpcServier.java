@@ -29,7 +29,7 @@ public class RpcServier {
 
     public void startRpcServer(Map<String, Object> rpcServiceMap)throws Exception {
 
-        try {
+        /*try {
             serverBootstrap = new ServerBootstrap();
             serverAddress = InetAddress.getLocalHost().getHostAddress();
             workerGroup = new NioEventLoopGroup();
@@ -37,7 +37,7 @@ public class RpcServier {
             serverBootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .option(ChannelOption.SO_BACKLOG, 100)
-                    .handler(new LoggingHandler(LogLevel.INFO))
+                    .handler(new LoggingHandler(LogLevel.TRACE))
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
@@ -58,11 +58,36 @@ public class RpcServier {
         }finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
+        }*/
+
+
+
+        this.serverAddress = InetAddress.getLocalHost().getHostAddress();
+
+        EventLoopGroup boss = new NioEventLoopGroup();
+        EventLoopGroup worker = new NioEventLoopGroup();
+        try {
+            ServerBootstrap bootstrap = new ServerBootstrap();
+            bootstrap.group(boss, worker)
+                    .channel(NioServerSocketChannel.class)
+                    .childHandler(new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        protected void initChannel(SocketChannel socketChannel) throws Exception {
+                            socketChannel.pipeline()
+                                    .addLast(new SmallEncoder())
+                                    .addLast(new SmallDecoder())
+                                    .addLast(new RpcRequestHandler(rpcServiceMap));
+                        }
+                    })
+                    .childOption(ChannelOption.SO_KEEPALIVE, true);
+
+            ChannelFuture channelFuture = bootstrap.bind(this.serverAddress, this.serverPort).sync();
+            log.info("server addr {} started on port {}", this.serverAddress, this.serverPort);
+            channelFuture.channel().closeFuture().sync();
+        } finally {
+            boss.shutdownGracefully();
+            worker.shutdownGracefully();
         }
-
-
-
-
 
 
 

@@ -1,8 +1,6 @@
 package com.rpc.imclient;
 
-import com.rpc.codc.SerializationTypeEnum;
-import com.rpc.codc.SmallHeader;
-import com.rpc.codc.SmallRpcProtocol;
+import com.rpc.codc.*;
 import com.rpc.common.*;
 import com.rpc.spring.registry.RegistryService;
 import io.netty.channel.DefaultEventLoop;
@@ -42,8 +40,9 @@ public class RpcInvokerProxy implements InvocationHandler {
         request.setParams(args);
         request.setParameterTypes(method.getParameterTypes());
         request.setServiceVersion(this.serviceVersion);
-        Integer dataLen = request.toString().length();
-        smallHeader.setDataLen(dataLen);
+        RpcSerialization serialization = SerializationFactory.getRpcSerialization(smallHeader.getSerialAlg());
+        byte[] body = serialization.serialize(request);
+        smallHeader.setDataLen(body.length);
         protocol.setData(request);
         RpcConsumer rpcConsumer = new RpcConsumer();
         MiniRcpFuture<MiniRpcResponse> future = new MiniRcpFuture<>(new DefaultPromise<>(new DefaultEventLoop()), timeout);

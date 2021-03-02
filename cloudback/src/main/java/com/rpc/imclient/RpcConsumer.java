@@ -23,16 +23,16 @@ public class RpcConsumer {
     public  RpcConsumer(){
         bootstrap = new Bootstrap();
         eventLoopGroup = new NioEventLoopGroup(4);
-        bootstrap.group(eventLoopGroup).channel(NioSocketChannel.class).handler(new ChannelInitializer<SocketChannel>(){
-
-            @Override
-            protected void initChannel(SocketChannel socketChannel) throws Exception {
-                ChannelPipeline p = socketChannel.pipeline();
-                p.addLast(new SmallDecoder());
-                p.addLast(new SmallEncoder());
-                p.addLast(new ConsumerHandler());
-            }
-        });
+        bootstrap.group(eventLoopGroup).channel(NioSocketChannel.class)
+                .handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel socketChannel) throws Exception {
+                        ChannelPipeline p = socketChannel.pipeline();
+                        p.addLast(new SmallEncoder());
+                        p.addLast(new SmallDecoder());
+                        p.addLast(new ConsumerHandler());
+                    }
+                });
     }
     public void sendRequest(SmallRpcProtocol<MiniRpcRequest> protocol, RegistryService registryService) throws Exception {
         MiniRpcRequest miniRpcRequest = protocol.getData();
@@ -41,10 +41,11 @@ public class RpcConsumer {
         int invokerHashCode = params.length > 0 ? params[0].hashCode() : serviceKey.hashCode();
         ServiceMeta serviceMetadata = registryService.discovery(serviceKey, invokerHashCode);
         if(serviceMetadata!=null){
-            ChannelFuture channelFuture = bootstrap.connect(serviceMetadata.getServiceAddr(),serviceMetadata.getServicePort());
+            ChannelFuture channelFuture = bootstrap.connect(serviceMetadata.getServiceAddr(),serviceMetadata.getServicePort()).sync();
             channelFuture.addListener((ChannelFutureListener)arg0->{
                 if(arg0.isSuccess()){
                     log.info("connect rpc server {} on port {} success.", serviceMetadata.getServiceAddr(), serviceMetadata.getServicePort());
+
                 }else {
                     log.error("connect rpc server {} on port {} failed.", serviceMetadata.getServiceAddr(), serviceMetadata.getServicePort());
                     channelFuture.cause().printStackTrace();
