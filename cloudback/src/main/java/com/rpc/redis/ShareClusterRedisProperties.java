@@ -13,21 +13,21 @@ import java.util.List;
 @Slf4j
 @Data
 public class ShareClusterRedisProperties {
-    @Value("${spring.share.redis.timeout}")
+    @Value("${share.redis.timeout}")
     private Integer redisTimeout;
-    @Value("${spring.share.redis.jedis.pool.max-active}")
+    @Value("${share.redis.jedis.pool.max-active}")
     private Integer poolMaxActive;
-    @Value("${spring.share.redis.jedis.pool.max-idle}")
+    @Value("${share.redis.jedis.pool.max-idle}")
     private Integer poolMaxIdle;
-    @Value("${spring.share.redis.jedis.pool.min-idle}")
+    @Value("${share.redis.jedis.pool.min-idle}")
     private Integer poolMinIdle;
-    @Value("${spring.share.redis.jedis.pool.max-wait}")
+    @Value("${share.redis.jedis.pool.max-wait}")
     private Integer poolMaxWait;
-    @Value("${spring.share.redis.cluster.nodes}")
+    @Value("${share.redis.cluster.nodes}")
     private List<String> clusterNodes;
-    @Value("${spring.share.redis.cluster.max-redirects}")
+    @Value("${share.redis.cluster.max-redirects}")
     private Integer clusterMaxRedirects;
-    @Value("${spring.share.redis.password}")
+    @Value("${share.redis.password}")
     private String password;
 
 }
