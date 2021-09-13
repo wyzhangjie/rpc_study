@@ -25,17 +25,23 @@ package questions.dpproblem;
  * */
 public class Leecode198 {
     public int rob(int[] nums) {
+        if(nums.length==1){
+            return nums[0];
+        }
+        if(nums.length==2){
+            return  Math.max(nums[0],nums[1]);
+        }
         int[] a= new int[nums.length];
         a[0] = nums[0];
         a[1]=Math.max(nums[0],nums[1]);
         for(int i=2;i<nums.length;i++){
-            a[i]=nums[i]+a[i-2];
+            a[i]=Math.max(nums[i]+a[i-2],a[i-1]);
         }
         return a[nums.length-1];
     }
 
     public static void main(String[] args) {
-        int[] nums= new int[]{2,7,9,3,1};
+        int[] nums= new int[]{2,1,1,2};
         Leecode198 leecode198 = new Leecode198();
         System.out.println(
                 leecode198.rob(nums)
